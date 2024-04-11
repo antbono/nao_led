@@ -17,7 +17,6 @@
   <depend>std_srvs</depend>
   <depend>nao_lola_sensor_msgs</depend>
   <depend>nao_lola_command_msgs</depend>
-  <depend>nao_lola_conversion</depend>
   <depend>nao_led_interfaces</depend>
 
   <test_depend>ament_lint_auto</test_depend>
