@@ -28,16 +28,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ros-tooling/setup-ros@v0.7
-        #with:
-        #  use-ros2-testing: true
+        with:
+          use-ros2-testing: true
       - uses: ros-tooling/action-ros-ci@v0.3
         with:
           skip-tests: true
           target-ros2-distro: humble
-          colcon-defaults: |
-            {
-              "build": {
-                "symlink-install": false
-              }
-            }
           vcs-repo-file-url: dependencies.repos

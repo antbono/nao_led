@@ -1,6 +1,6 @@
-[![Build (humble)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_humble.yaml/badge.svg)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_humble.yaml)
-[![Build (iron)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_iron.yaml/badge.svg)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_iron.yaml)
-[![Build (rolling)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_rolling.yaml/badge.svg)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_rolling.yaml)
+[![Build and test (humble)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_humble.yaml/badge.svg)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_humble.yaml)
+[![Build and test (iron)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_iron.yaml/badge.svg)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_iron.yaml)
+[![Build and test (rolling)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_rolling.yaml/badge.svg)](https://github.com/antbono/nao_led/actions/workflows/build_and_test_rolling.yaml)
 
 # nao_led
 

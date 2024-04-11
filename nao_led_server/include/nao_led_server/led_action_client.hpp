@@ -18,68 +18,68 @@
 #include <functional>
 #include <future>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "boost/filesystem.hpp"
-
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
-#include "rclcpp_components/register_node_macro.hpp"
-
-#include "nao_lola_command_msgs/msg/head_leds.hpp"
-#include "nao_lola_command_msgs/msg/right_eye_leds.hpp"
-#include "nao_lola_command_msgs/msg/left_eye_leds.hpp"
-#include "nao_lola_command_msgs/msg/right_ear_leds.hpp"
-#include "nao_lola_command_msgs/msg/left_ear_leds.hpp"
-#include "nao_lola_command_msgs/msg/chest_led.hpp"
-#include "nao_lola_command_msgs/msg/right_foot_led.hpp"
-#include "nao_lola_command_msgs/msg/left_foot_led.hpp"
-
 #include "nao_led_interfaces/action/leds_play.hpp"
 #include "nao_led_interfaces/msg/led_indexes.hpp"
 #include "nao_led_interfaces/msg/led_modes.hpp"
-#include "nao_led_interfaces/action/leds_play.hpp"
-
+#include "nao_lola_command_msgs/msg/chest_led.hpp"
+#include "nao_lola_command_msgs/msg/head_leds.hpp"
+#include "nao_lola_command_msgs/msg/left_ear_leds.hpp"
+#include "nao_lola_command_msgs/msg/left_eye_leds.hpp"
+#include "nao_lola_command_msgs/msg/left_foot_led.hpp"
+#include "nao_lola_command_msgs/msg/right_ear_leds.hpp"
+#include "nao_lola_command_msgs/msg/right_eye_leds.hpp"
+#include "nao_lola_command_msgs/msg/right_foot_led.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
+#include "rclcpp_components/register_node_macro.hpp"
 #include "std_msgs/msg/color_rgba.hpp"
 
-namespace nao_led_action_client {
+namespace nao_led_action_client
+{
 
-class LedsPlayActionClient : public rclcpp::Node {
-  public:
-	explicit LedsPlayActionClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
-	virtual ~LedsPlayActionClient();
+class LedsPlayActionClient : public rclcpp::Node
+{
+public:
+  explicit LedsPlayActionClient(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
+  virtual ~LedsPlayActionClient();
 
-	void eyesStatic( bool flag );
-	void headStatic( bool flag );
-	void earsStatic( bool flag );
-	void chestStatic( bool flag );
-	void earsLoop( bool flag );
-	void headLoop( bool flag );
-	void eyesLoop( bool flag );
+  void eyesStatic(bool flag);
+  void headStatic(bool flag);
+  void earsStatic(bool flag);
+  void chestStatic(bool flag);
+  void earsLoop(bool flag);
+  void headLoop(bool flag);
+  void eyesLoop(bool flag);
 
-  private:
+private:
+  void goalResponseCallback(
+    const rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr &
+    goal_handle);
+  void feedbackCallback(
+    rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr,
+    const std::shared_ptr<const nao_led_interfaces::action::LedsPlay::Feedback> feedback);
+  void resultCallback(
+    const rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::WrappedResult &
+    result);
 
-	void goalResponseCallback(
-	    const rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr & goal_handle);
-	void feedbackCallback(
-	    rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr,
-	    const std::shared_ptr<const nao_led_interfaces::action::LedsPlay::Feedback> feedback);
-	void resultCallback(
-	    const rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::WrappedResult & result);
+  rclcpp_action::Client<nao_led_interfaces::action::LedsPlay>::SharedPtr client_ptr_;
 
+  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr
+    head_goal_handle_;
+  // std::shared_future<nao_led_interfaces::action::LedsPlay::Impl::CancelGoalService::Response::SharedPtr>
+  // head_goal_handle_;
+  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr
+    eyes_goal_handle_;
+  rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr
+    ears_goal_handle_;
 
-	rclcpp_action::Client<nao_led_interfaces::action::LedsPlay>::SharedPtr client_ptr_;
+};  // LedsPlayActionClient
 
-	rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr head_goal_handle_;
-	//std::shared_future<nao_led_interfaces::action::LedsPlay::Impl::CancelGoalService::Response::SharedPtr> head_goal_handle_;
-	rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr eyes_goal_handle_;
-	rclcpp_action::ClientGoalHandle<nao_led_interfaces::action::LedsPlay>::SharedPtr ears_goal_handle_;
+}  // namespace nao_led_action_client
 
-
-}; // LedsPlayActionClient
-
-} // nao_led_action_client
-
-#endif // NAO_LED_SERVER__LED_ACTION_CLIENT_HPP_
+#endif  // NAO_LED_SERVER__LED_ACTION_CLIENT_HPP_
