@@ -1,0 +1,5 @@
+repositories:
+  nao_lola:
+    type: git
+    url: https://github.com/ros-sports/nao_lola.git
+    version: rolling
