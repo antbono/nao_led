@@ -7,6 +7,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(nao_led_interfaces REQUIRED)
 find_package(nao_lola_sensor_msgs REQUIRED)
 find_package(nao_lola_command_msgs REQUIRED)
@@ -80,6 +81,7 @@ rclcpp_components_register_node(led_client
 )
 
 set(LED_CLIENT_INCLUDE_DEPENDS
+  "ament_index_cpp"
   "rclcpp"
   "rclcpp_action"
   "rclcpp_components"
