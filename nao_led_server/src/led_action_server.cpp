@@ -52,7 +52,7 @@ static inline float clamp_frequency(float hz)
 }
 
 static inline bool safe_goal_is_active(
-  const std::shared_ptr<LedsPlayActionServer::GoalHandleLedsPlay> & gh)
+  const std::shared_ptr<GoalHandleLedsPlay> & gh)
 {
   try {
     return gh && gh->is_active();
@@ -62,7 +62,7 @@ static inline bool safe_goal_is_active(
 }
 
 static inline bool safe_goal_is_canceling(
-  const std::shared_ptr<LedsPlayActionServer::GoalHandleLedsPlay> & gh)
+  const std::shared_ptr<GoalHandleLedsPlay> & gh)
 {
   try {
     return gh && gh->is_canceling();
