@@ -40,13 +40,16 @@ rclcpp_components_register_node(led_server
 )
 
 set(LED_SERVER_INCLUDE_DEPENDS
+  "ament_index_cpp"
   "rclcpp"
   "rclcpp_action"
   "rclcpp_components"
   "nao_lola_command_msgs"
   "nao_lola_sensor_msgs"
   "nao_led_interfaces"
-  "std_msgs")
+  "std_msgs"
+  "std_srvs"
+  "rcutils")
 
 ament_target_dependencies(led_server ${LED_SERVER_INCLUDE_DEPENDS})
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
@@ -105,7 +108,6 @@ install(
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include)
-
 
 
 

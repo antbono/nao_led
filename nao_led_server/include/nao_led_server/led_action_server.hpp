@@ -15,15 +15,13 @@
 #ifndef NAO_LED_SERVER__LED_ACTION_SERVER_HPP_
 #define NAO_LED_SERVER__LED_ACTION_SERVER_HPP_
 
-#include <functional>
-#include <memory>
-#include <thread>
-//#include <vector>
 #include <array>
-//#include <chrono>
-#include <cstring>
-#include <iostream>  // std::cout
-#include <string>    // std::string, std::stof
+#include <atomic>
+#include <cstdint>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <unordered_map>
 
 #include "nao_led_interfaces/action/leds_play.hpp"
 #include "nao_led_interfaces/msg/led_indexes.hpp"
@@ -38,7 +36,6 @@
 #include "nao_lola_command_msgs/msg/right_foot_led.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "rclcpp_components/register_node_macro.hpp"
 #include "std_msgs/msg/color_rgba.hpp"
 
 namespace nao_led_action_server
@@ -53,13 +50,13 @@ class LedsPlayActionServer : public rclcpp::Node
 {
 public:
   explicit LedsPlayActionServer(const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
-  virtual ~LedsPlayActionServer();
+  ~LedsPlayActionServer() override;
 
 private:
-  rclcpp_action::Server<nao_led_interfaces::action::LedsPlay>::SharedPtr action_server_;
-  std::shared_ptr<rclcpp_action::ServerGoalHandle<nao_led_interfaces::action::LedsPlay>>
-  goal_handle_;
+  // Action server
+  rclcpp_action::Server<LedsPlay>::SharedPtr action_server_;
 
+  // Publishers
   rclcpp::Publisher<nao_lola_command_msgs::msg::HeadLeds>::SharedPtr head_pub_;
   rclcpp::Publisher<nao_lola_command_msgs::msg::RightEyeLeds>::SharedPtr right_eye_pub_;
   rclcpp::Publisher<nao_lola_command_msgs::msg::LeftEyeLeds>::SharedPtr left_eye_pub_;
@@ -69,44 +66,58 @@ private:
   rclcpp::Publisher<nao_lola_command_msgs::msg::RightFootLed>::SharedPtr right_foot_pub_;
   rclcpp::Publisher<nao_lola_command_msgs::msg::LeftFootLed>::SharedPtr left_foot_pub_;
 
+  // Common
   std_msgs::msg::ColorRGBA color_off_;
-  // color_off_.r=0.0; color_off_.g=0.0; color_off_.b=0.0;
-  nao_led_interfaces::msg::LedIndexes led_indexes_msg_;
-  nao_led_interfaces::msg::LedModes led_modes_msg_;
 
+  // ---- NEW: per-effector preemption via generations (no interface changes) ----
+  static constexpr std::size_t kNumEffectors = 8;  // must match LedIndexes::NUMLEDS
+  std::array<std::atomic<std::uint64_t>, kNumEffectors> eff_gen_{};
+
+  // Store per-goal tokens (captured generations for the effectors included in that goal)
+  std::mutex goal_tokens_mtx_;
+  std::unordered_map<GoalHandleLedsPlay *, std::array<std::uint64_t, kNumEffectors>> goal_tokens_;
+
+  // Action callbacks
   rclcpp_action::GoalResponse handleGoal(
     const rclcpp_action::GoalUUID & uuid,
-    std::shared_ptr<const nao_led_interfaces::action::LedsPlay::Goal> goal);
+    std::shared_ptr<const LedsPlay::Goal> goal);
 
   rclcpp_action::CancelResponse handleCancel(
-    const std::shared_ptr<rclcpp_action::ServerGoalHandle<nao_led_interfaces::action::LedsPlay>>
-    goal_handle);
+    const std::shared_ptr<GoalHandleLedsPlay> goal_handle);
 
-  void handleAccepted(
-    const std::shared_ptr<rclcpp_action::ServerGoalHandle<nao_led_interfaces::action::LedsPlay>>
-    goal_handle);
+  void handleAccepted(const std::shared_ptr<GoalHandleLedsPlay> goal_handle);
 
-  void execute(
-    const std::shared_ptr<rclcpp_action::ServerGoalHandle<nao_led_interfaces::action::LedsPlay>>
-    goal_handle);
+  void execute(const std::shared_ptr<GoalHandleLedsPlay> goal_handle);
 
-  void steadyMode(
-    const std::shared_ptr<rclcpp_action::ServerGoalHandle<nao_led_interfaces::action::LedsPlay>>
-    goal_handle,
-    std::array<uint8_t, 2> & leds, float frequency,
-    std::array<std_msgs::msg::ColorRGBA, 8> & colors, std::array<float, 12> & intensities);
+  // Helpers
+  bool shouldStop(const std::shared_ptr<GoalHandleLedsPlay> & goal_handle) const;
+
+  void publishOff(const std::array<uint8_t, 2> & leds);
+
+  bool steadyMode(
+    const std::shared_ptr<GoalHandleLedsPlay> & goal_handle,
+    const std::array<uint8_t, 2> & leds,
+    const std::array<std_msgs::msg::ColorRGBA, 8> & colors,
+    const std::array<float, 12> & intensities,
+    float duration_s);
 
   bool blinkingMode(
-    const std::shared_ptr<rclcpp_action::ServerGoalHandle<nao_led_interfaces::action::LedsPlay>>
-    goal_handle,
-    std::array<uint8_t, 2> & leds, float frequency,
-    std::array<std_msgs::msg::ColorRGBA, 8> & colors);
+    const std::shared_ptr<GoalHandleLedsPlay> & goal_handle,
+    const std::array<uint8_t, 2> & leds,
+    float frequency_hz,
+    const std::array<std_msgs::msg::ColorRGBA, 8> & colors,
+    float duration_s);
 
   bool loopMode(
-    const std::shared_ptr<rclcpp_action::ServerGoalHandle<nao_led_interfaces::action::LedsPlay>>
-    goal_handle,
-    std::array<uint8_t, 2> & leds, float frequency,
-    std::array<std_msgs::msg::ColorRGBA, 8> & colors);
+    const std::shared_ptr<GoalHandleLedsPlay> & goal_handle,
+    const std::array<uint8_t, 2> & leds,
+    float frequency_hz,
+    const std::array<std_msgs::msg::ColorRGBA, 8> & colors,
+    float duration_s);
+
+  // Keep same naming style; internal helper (no ROS interface impact)
+  std::array<std_msgs::msg::ColorRGBA, 8>
+  normalize_eye_colors(const std::array<std_msgs::msg::ColorRGBA, 8> & in);
 };
 
 }  // namespace nao_led_action_server
